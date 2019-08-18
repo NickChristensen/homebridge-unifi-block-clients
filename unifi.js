@@ -23,7 +23,7 @@ module.exports = class Unifi {
         remember: true
       })
       .catch(err =>
-        this.log(`Unable to authenticate with Unifi controller: "${err.message}"`)
+        this.log.error(`Unable to authenticate with Unifi controller: "${err.message}"`)
       )
       .then(response => {
         if (!response) return;
@@ -39,7 +39,7 @@ module.exports = class Unifi {
     return this.connection
       .get(`/s/${this.siteName}/rest/user/`)
       .catch(err =>
-        this.log(`Unable to get known clients: "${err.message}"`)
+        this.log.error(`Unable to get known clients: "${err.message}"`)
       );
   };
 
@@ -51,7 +51,7 @@ module.exports = class Unifi {
       })
       .then(response => response.data.data[0].blocked)
       .catch(err =>
-        this.log(`Unable to block client: "${err.message}"`)
+        this.log.error(`Unable to block client: "${err.message}"`)
       );
   };
 
@@ -63,7 +63,7 @@ module.exports = class Unifi {
       })
       .then(response => response.data.data[0].blocked)
       .catch(err =>
-        this.log(`Unable to unblock client: "${err.message}"`)
+        this.log.error(`Unable to unblock client: "${err.message}"`)
       );
   };
 
@@ -72,7 +72,7 @@ module.exports = class Unifi {
       .get(`/s/${this.siteName}/rest/user/${id}`)
       .then(response => response.data.data[0].blocked)
       .catch(err =>
-        this.log(`Unable to get client status: "${err.message}"`)
+        this.log.error(`Unable to get client status: "${err.message}"`)
       );
   };
 };
