@@ -15,7 +15,7 @@ module.exports = class Unifi {
     });
   }
 
-  authenticate = () => {
+  authenticate() {
     return this.connection
       .post('login', {
         username: this.username,
@@ -33,17 +33,17 @@ module.exports = class Unifi {
         this.connection.defaults.headers.common['Cookie'] = cookies;
         return response;
       });
-  };
+  }
 
-  getKnownClients = () => {
+  getKnownClients() {
     return this.connection
       .get(`/s/${this.siteName}/rest/user/`)
       .catch(err =>
         this.log.error(`Unable to get known clients: "${err.message}"`)
       );
-  };
+  }
 
-  blockClient = mac => {
+  blockClient(mac) {
     return this.connection
       .post(`/s/${this.siteName}/cmd/stamgr`, {
         mac,
@@ -53,9 +53,9 @@ module.exports = class Unifi {
       .catch(err =>
         this.log.error(`Unable to block client: "${err.message}"`)
       );
-  };
+  }
 
-  unblockClient = mac => {
+  unblockClient(mac) {
     return this.connection
       .post(`/s/${this.siteName}/cmd/stamgr`, {
         mac,
@@ -65,14 +65,14 @@ module.exports = class Unifi {
       .catch(err =>
         this.log.error(`Unable to unblock client: "${err.message}"`)
       );
-  };
+  }
 
-  getClientBlockStatus = id => {
+  getClientBlockStatus(id) {
     return this.connection
       .get(`/s/${this.siteName}/rest/user/${id}`)
       .then(response => response.data.data[0].blocked)
       .catch(err =>
         this.log.error(`Unable to get client status: "${err.message}"`)
       );
-  };
+  }
 };
