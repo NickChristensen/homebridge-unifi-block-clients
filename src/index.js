@@ -71,7 +71,7 @@ class Platform {
   }
 
   toggleAccessoryValue = (accessory, isOn) => {
-    let action = isOn ? this.unifi.unblockClient : this.unifi.blockClient;
+    let action = isOn ? this.unifi.blockClient : this.unifi.unblockClient;
     return action(accessory.context.mac);
   }
 
@@ -79,7 +79,7 @@ class Platform {
     return this.unifi.getClientBlockStatus(accessory.context._id).then(isBlocked => {
       return accessory
         .getService(Service.Switch)
-        .setCharacteristic(Characteristic.On, !isBlocked);
+        .setCharacteristic(Characteristic.On, isBlocked);
     });
   }
 
@@ -119,7 +119,7 @@ class Platform {
     newAccessory.context = client;
     
     // Make sure you provided a name for service, otherwise it may not visible in some HomeKit apps
-    newAccessory.addService(Service.Switch, `Network: ${accessoryName}`)
+    newAccessory.addService(Service.Switch, `Block ${accessoryName}`)
     
     this.setUpAccessory(newAccessory);
     this.api.registerPlatformAccessories("homebridge-unifi-block-clients", "unifiBlockClients", [newAccessory]);
