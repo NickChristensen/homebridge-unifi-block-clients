@@ -22,18 +22,24 @@ class Platform {
   // Platform constructor
   // config may be null
   // api may be null if launched from old homebridge version
-  constructor(log, config, api) {
-    let defaultConfig = {
-      pollingFrequency: 5000,
-      siteName: "default",
-      clients: []
-    }
-    config = { ...defaultConfig, ...config };
+  constructor(log, config = {}, api) {
+    let requiredConfig = argName => {
+      log.error(`${argName} is required. Check config.json.`)
+      throw new Error();
+    };
+    
+    let {
+      username = requiredConfig('username'),
+      password = requiredConfig('password'),
+      controllerUrl = requiredConfig('controllerUrl'),
+      pollingFrequency = 5000,
+      siteName = "default",
+      clients = []
+    } = config;
 
     this.log = log;
-    this.config = config;
     this.accessories = [];
-    this.unifi = new Unifi({log, ...config});
+    this.unifi = new Unifi({log, username, password, controllerUrl, pollingFrequency, siteName, clients});
   
     if (api) {
         // Save the API object as plugin needs to register new accessory via this object
@@ -44,8 +50,8 @@ class Platform {
         // Or start discover new accessories.
         this.api.on('didFinishLaunching', () => {
           let auth = this.unifi.authenticate();
-          let clientsToAdd = this.config.clients.filter(client => !this.accessories.map(a => a.context.mac).includes(client));
-          let clientsToRemove = this.accessories.filter(client => !this.config.clients.includes(client.context.mac));
+          let clientsToAdd = config.clients.filter(client => !this.accessories.map(a => a.context.mac).includes(client));
+          let clientsToRemove = this.accessories.filter(client => !config.clients.includes(client.context.mac));
 
           clientsToRemove.length && clientsToRemove.forEach(this.removeAccessory);
 
@@ -58,7 +64,7 @@ class Platform {
             });
 
           auth.then(() => {
-            setInterval(() => this.accessories.forEach(this.getAccessoryValue), this.config.pollingFrequency)
+            setInterval(() => this.accessories.forEach(this.getAccessoryValue), config.pollingFrequency)
           })
       });
     }
@@ -78,11 +84,6 @@ class Platform {
   }
 
   setUpAccessory = (accessory) => {
-    accessory.on('identify', (paired, callback) => {
-      this.log(accessory.displayName, "Identify!!!");
-      callback();
-    });
-
     if (accessory.getService(Service.Switch)) {
       accessory.getService(Service.Switch)
       .getCharacteristic(Characteristic.On)
