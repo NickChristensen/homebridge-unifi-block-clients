@@ -84,7 +84,6 @@ class Platform {
   }
 
   getAccessoryValue(accessory) {
-    this.log('getAccessoryValue', accessory.displayName);
     return this.unifi.getClientBlockStatus(accessory.context._id).then(isBlocked => {
       return accessory
         .getService(Service.Switch)
