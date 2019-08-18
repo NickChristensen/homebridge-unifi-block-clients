@@ -2,20 +2,10 @@ const axios = require('axios');
 const https = require('https');
 
 module.exports = class Unifi {
-  constructor({
-    log,
-    controllerUrl,
-    username,
-    password,
-    siteName = 'default'
-  }) {
-    this.log = log;
-    this.controllerUrl = controllerUrl;
-    this.username = username;
-    this.password = password;
-    this.siteName = siteName;
+  constructor(args) {
+    Object.entries(args).forEach(([key, val]) => (this[key] = val));
     this.connection = axios.create({
-      baseURL: `${controllerUrl}/api/`,
+      baseURL: `${args.controllerUrl}/api/`,
       timeout: 5000,
       headers: { 'content-type': 'application/json' },
       withCredentials: true,
@@ -33,7 +23,7 @@ module.exports = class Unifi {
         remember: true
       })
       .catch(err =>
-        this.log(`Unable to connect to Unifi controller: "${err.message}"`)
+        this.log(`Unable to authenticate with Unifi controller: "${err.message}"`)
       )
       .then(response => {
         if (!response) return;
@@ -49,7 +39,7 @@ module.exports = class Unifi {
     return this.connection
       .get(`/s/${this.siteName}/rest/user/`)
       .catch(err =>
-        this.log(`Unable to connect to Unifi controller: "${err.message}"`)
+        this.log(`Unable to get known clients: "${err.message}"`)
       );
   };
 
@@ -59,7 +49,10 @@ module.exports = class Unifi {
         mac,
         cmd: 'block-sta'
       })
-      .then(response => response.data.data[0].blocked);
+      .then(response => response.data.data[0].blocked)
+      .catch(err =>
+        this.log(`Unable to block client: "${err.message}"`)
+      );
   };
 
   unblockClient = mac => {
@@ -68,11 +61,18 @@ module.exports = class Unifi {
         mac,
         cmd: 'unblock-sta'
       })
-      .then(response => response.data.data[0].blocked);
+      .then(response => response.data.data[0].blocked)
+      .catch(err =>
+        this.log(`Unable to unblock client: "${err.message}"`)
+      );
   };
 
   getClientBlockStatus = id => {
-    return this.connection.get(`/s/${this.siteName}/rest/user/${id}`)
-      .then(response => response.data.data[0].blocked);
+    return this.connection
+      .get(`/s/${this.siteName}/rest/user/${id}`)
+      .then(response => response.data.data[0].blocked)
+      .catch(err =>
+        this.log(`Unable to get client status: "${err.message}"`)
+      );
   };
 };
