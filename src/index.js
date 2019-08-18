@@ -23,6 +23,14 @@ class Platform {
   // config may be null
   // api may be null if launched from old homebridge version
   constructor(log, config = {}, api) {
+    this.addAccessory = this.addAccessory.bind(this);
+    this.configureAccessory = this.configureAccessory.bind(this);
+    this.getAccessoryValue = this.getAccessoryValue.bind(this);
+    this.removeAccessory = this.removeAccessory.bind(this);
+    this.setUpAccessory = this.setUpAccessory.bind(this);
+    this.toggleAccessoryValue = this.toggleAccessoryValue.bind(this);
+    this.updateAccessoriesReachability = this.updateAccessoriesReachability.bind(this);
+  
     let requiredConfig = argName => {
       log.error(`${argName} is required. Check config.json.`)
       throw new Error();
@@ -40,7 +48,7 @@ class Platform {
     this.log = log;
     this.accessories = [];
     this.unifi = new Unifi({log, username, password, controllerUrl, pollingFrequency, siteName, clients});
-  
+
     if (api) {
         // Save the API object as plugin needs to register new accessory via this object
         this.api = api;
@@ -50,8 +58,8 @@ class Platform {
         // Or start discover new accessories.
         this.api.on('didFinishLaunching', () => {
           let auth = this.unifi.authenticate();
-          let clientsToAdd = config.clients.filter(client => !this.accessories.map(a => a.context.mac).includes(client));
-          let clientsToRemove = this.accessories.filter(client => !config.clients.includes(client.context.mac));
+          let clientsToAdd = clients.filter(client => !this.accessories.map(a => a.context.mac).includes(client));
+          let clientsToRemove = this.accessories.filter(client => !clients.includes(client.context.mac));
 
           clientsToRemove.length && clientsToRemove.forEach(this.removeAccessory);
 
@@ -64,7 +72,7 @@ class Platform {
             });
 
           auth.then(() => {
-            setInterval(() => this.accessories.forEach(this.getAccessoryValue), config.pollingFrequency)
+            setInterval(() => this.accessories.forEach(this.getAccessoryValue), pollingFrequency)
           })
       });
     }
@@ -76,6 +84,7 @@ class Platform {
   }
 
   getAccessoryValue(accessory) {
+    this.log('getAccessoryValue', accessory.displayName);
     return this.unifi.getClientBlockStatus(accessory.context._id).then(isBlocked => {
       return accessory
         .getService(Service.Switch)

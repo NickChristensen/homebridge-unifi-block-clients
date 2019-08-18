@@ -3,6 +3,12 @@ const https = require('https');
 
 module.exports = class Unifi {
   constructor(args) {
+    this.authenticate = this.authenticate.bind(this);
+    this.blockClient = this.blockClient.bind(this);
+    this.getClientBlockStatus = this.getClientBlockStatus.bind(this);
+    this.getKnownClients = this.getKnownClients.bind(this);
+    this.unblockClient = this.unblockClient.bind(this);
+
     Object.entries(args).forEach(([key, val]) => (this[key] = val));
     this.connection = axios.create({
       baseURL: `${args.controllerUrl}/api/`,
