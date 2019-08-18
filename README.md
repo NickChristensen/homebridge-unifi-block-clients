@@ -1,8 +1,8 @@
 # Unifi Block Clients
 
-With this plugin, you can create switches that block/unblock network clients on your Unifi network. When a switch is toggled on, the device will be blocked from network access. When the switch is toggled off, the device will be allowed network access again.
+With this plugin, you can create switches that block/unblock network clients on your Unifi network. When a switch is toggled on, the client will be blocked from network access. When the switch is toggled off, the client will be allowed network access again.
 
-Use it to automate network access for certain devices/users based on who's home, what time it is, etc. Create scenes to group multiple devices together.
+Use it to automate network access for certain devices/users based on who's home, time of day, etc. Create scenes to group multiple devices together.
 
 ### Installation
 `npm install -g homebridge-unifi-block-clients`
@@ -19,6 +19,7 @@ Add a new item to the `platforms` section of your `config.json` file, with the f
 | `controllerUrl`  | | The full url to your controller, including port number (usually `8443`) |
 | `pollingFrequency` (optional) | `5000` | How often (in milliseconds) to check for updates to your device's blocked/unblocked state |
 | `siteName` (optional)         | `default` | If you have a single site, it's called `default`.<br> If you have multiple sites, you can get the correct siteName by logging in to your Unifi dashboard, and checking the url for `/manage/site/SITENAME...` |
+| `clients`         | `[]` | An array of strings, representing MAC addresses of network clients you'd like to control |
 
 Example config.json:
 
