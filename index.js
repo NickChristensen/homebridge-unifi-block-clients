@@ -23,6 +23,13 @@ class Platform {
   // config may be null
   // api may be null if launched from old homebridge version
   constructor(log, config, api) {
+    let defaultConfig = {
+      pollingFrequency: 5000,
+      siteName: "default",
+      clients: []
+    }
+    config = { ...defaultConfig, ...config };
+
     this.log = log;
     this.config = config;
     this.accessories = [];
@@ -43,7 +50,7 @@ class Platform {
           clientsToRemove.length && clientsToRemove.forEach(this.removeAccessory);
 
           clientsToAdd.length && auth
-            .then(this.unifi.getKnownClients)
+            .then(() => this.unifi.getKnownClients())
             .then(response => {
               response.data.data
                 .filter(client => clientsToAdd.includes(client.mac))
@@ -71,7 +78,7 @@ class Platform {
   }
 
   setUpAccessory = (accessory) => {
-    accessory.on('identify', function(paired, callback) {
+    accessory.on('identify', (paired, callback) => {
       this.log(accessory.displayName, "Identify!!!");
       callback();
     });
