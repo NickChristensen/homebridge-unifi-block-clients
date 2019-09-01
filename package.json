@@ -2,6 +2,7 @@
   "name": "homebridge-unifi-block-clients",
   "version": "1.0.3",
   "description": "",
+  "repository": "nickchristensen/homebridge-unifi-block-clients",
   "keywords": [
     "homebridge-plugin",
     "homebridge",
