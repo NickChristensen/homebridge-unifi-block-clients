@@ -3,8 +3,6 @@ const Unifi = require('./unifi');
 let Accessory, Service, Characteristic, UUIDGen;
 
 module.exports = function(homebridge) {
-  console.log("homebridge API version: " + homebridge.version);
-
   // Accessory must be created from PlatformAccessory Constructor
   Accessory = homebridge.platformAccessory;
 
@@ -22,7 +20,15 @@ class Platform {
   // Platform constructor
   // config may be null
   // api may be null if launched from old homebridge version
-  constructor(log, config = {}, api) {
+  constructor(log, config, api) {
+    this.log = log;
+    this.config = config;
+    this.api = api;
+
+    if(!config) {
+      return false;
+    }
+
     this.addAccessory = this.addAccessory.bind(this);
     this.configureAccessory = this.configureAccessory.bind(this);
     this.getAccessoryValue = this.getAccessoryValue.bind(this);
@@ -45,18 +51,14 @@ class Platform {
       clients = []
     } = config;
 
-    this.log = log;
     this.accessories = [];
     this.unifi = new Unifi({log, username, password, controllerUrl, pollingFrequency, siteName, clients});
 
     if (api) {
-        // Save the API object as plugin needs to register new accessory via this object
-        this.api = api;
-  
         // Listen to event "didFinishLaunching", this means homebridge already finished loading cached accessories.
         // Platform Plugin should only register new accessory that doesn't exist in homebridge after this event.
         // Or start discover new accessories.
-        this.api.on('didFinishLaunching', () => {
+        api.on('didFinishLaunching', () => {
           let auth = this.unifi.authenticate();
           let clientsToAdd = clients.filter(client => !this.accessories.map(a => a.context.mac).includes(client));
           let clientsToRemove = this.accessories.filter(client => !clients.includes(client.context.mac));
@@ -72,6 +74,7 @@ class Platform {
             });
 
           auth.then(() => {
+            this.auth = true;
             setInterval(() => this.accessories.forEach(this.getAccessoryValue), pollingFrequency)
           })
       });
@@ -79,11 +82,19 @@ class Platform {
   }
 
   toggleAccessoryValue(accessory, isOn) {
+    if(!this.config || !this.auth) {
+      return false;
+    }
+
     let action = isOn ? this.unifi.blockClient : this.unifi.unblockClient;
     return action(accessory.context.mac);
   }
 
   getAccessoryValue(accessory) {
+    if(!this.config || !this.auth) {
+      return false;
+    }
+
     return this.unifi.getClientBlockStatus(accessory.context._id).then(isBlocked => {
       return accessory
         .getService(Service.Switch)
@@ -92,6 +103,10 @@ class Platform {
   }
 
   setUpAccessory(accessory) {
+    if(!this.config || !this.auth) {
+      return false;
+    }
+
     if (accessory.getService(Service.Switch)) {
       accessory.getService(Service.Switch)
       .getCharacteristic(Characteristic.On)
@@ -105,6 +120,10 @@ class Platform {
   // Developer can configure accessory at here (like setup event handler).
   // Update current value.
   configureAccessory(accessory) {
+    if(!this.config || !this.auth) {
+      return false;
+    }
+
     this.log(`Loaded client: ${accessory.context.mac} (${accessory.displayName})`);
 
     // Set the accessory to reachable if plugin can currently process the accessory,
@@ -117,6 +136,10 @@ class Platform {
 
   // Sample function to show how developer can add accessory dynamically from outside event
   addAccessory(client) {
+    if(!this.config || !this.auth) {
+      return false;
+    }
+
     let uuid = UUIDGen.generate(client._id);
     let accessoryName = client.name || client.hostname || client._id;
     let newAccessory = new Accessory(accessoryName, uuid);
@@ -134,6 +157,10 @@ class Platform {
   }
 
   updateAccessoriesReachability() {
+    if(!this.config || !this.auth) {
+      return false;
+    }
+
     this.log("Update Reachability");
     for (var index in this.accessories) {
       var accessory = this.accessories[index];
@@ -142,6 +169,10 @@ class Platform {
   }
   
   removeAccessory(accessory) {
+    if(!this.config || !this.auth) {
+      return false;
+    }
+
     this.log(`Removing accessory: ${accessory.context.mac} (${accessory.displayName})`); 
     this.api.unregisterPlatformAccessories("homebridge-unifi-block-clients", "unifiBlockClients", [accessory]);
   
