@@ -1,6 +1,6 @@
 {
   "name": "homebridge-unifi-block-clients",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "",
   "keywords": [
     "homebridge-plugin",
