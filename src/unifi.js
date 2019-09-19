@@ -3,12 +3,6 @@ const https = require('https');
 
 module.exports = class Unifi {
   constructor(args) {
-    this.authenticate = this.authenticate.bind(this);
-    this.blockClient = this.blockClient.bind(this);
-    this.getClientBlockStatus = this.getClientBlockStatus.bind(this);
-    this.getKnownClients = this.getKnownClients.bind(this);
-    this.unblockClient = this.unblockClient.bind(this);
-
     Object.entries(args).forEach(([key, val]) => (this[key] = val));
     this.connection = axios.create({
       baseURL: `${args.controllerUrl}/api/`,
@@ -21,7 +15,7 @@ module.exports = class Unifi {
     });
   }
 
-  authenticate() {
+  authenticate = () => {
     return this.connection
       .post('login', {
         username: this.username,
@@ -41,7 +35,7 @@ module.exports = class Unifi {
       });
   }
 
-  getKnownClients() {
+  getKnownClients = () => {
     return this.connection
       .get(`/s/${this.siteName}/rest/user/`)
       .catch(err =>
@@ -49,7 +43,7 @@ module.exports = class Unifi {
       );
   }
 
-  blockClient(mac) {
+  blockClient = mac => {
     return this.connection
       .post(`/s/${this.siteName}/cmd/stamgr`, {
         mac,
@@ -61,7 +55,7 @@ module.exports = class Unifi {
       );
   }
 
-  unblockClient(mac) {
+  unblockClient = mac => {
     return this.connection
       .post(`/s/${this.siteName}/cmd/stamgr`, {
         mac,
@@ -73,7 +67,7 @@ module.exports = class Unifi {
       );
   }
 
-  getClientBlockStatus(id) {
+  getClientBlockStatus = id => {
     return this.connection
       .get(`/s/${this.siteName}/rest/user/${id}`)
       .then(response => response.data.data[0].blocked)

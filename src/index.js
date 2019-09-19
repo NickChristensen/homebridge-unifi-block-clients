@@ -29,14 +29,6 @@ class Platform {
       return false;
     }
 
-    this.addAccessory = this.addAccessory.bind(this);
-    this.configureAccessory = this.configureAccessory.bind(this);
-    this.getAccessoryValue = this.getAccessoryValue.bind(this);
-    this.removeAccessory = this.removeAccessory.bind(this);
-    this.setUpAccessory = this.setUpAccessory.bind(this);
-    this.toggleAccessoryValue = this.toggleAccessoryValue.bind(this);
-    this.updateAccessoriesReachability = this.updateAccessoriesReachability.bind(this);
-  
     let requiredConfig = argName => {
       log.error(`${argName} is required. Check config.json.`)
       throw new Error();
@@ -81,7 +73,7 @@ class Platform {
     }
   }
 
-  toggleAccessoryValue(accessory, isOn) {
+  toggleAccessoryValue = (accessory, isOn) => {
     if(!this.config || !this.auth) {
       return false;
     }
@@ -90,7 +82,7 @@ class Platform {
     return action(accessory.context.mac);
   }
 
-  getAccessoryValue(accessory) {
+  getAccessoryValue = (accessory) => {
     if(!this.config || !this.auth) {
       return false;
     }
@@ -102,7 +94,7 @@ class Platform {
     });
   }
 
-  setUpAccessory(accessory) {
+  setUpAccessory = (accessory) => {
     if(!this.config || !this.auth) {
       return false;
     }
@@ -119,7 +111,7 @@ class Platform {
   // Function invoked when homebridge tries to restore cached accessory.
   // Developer can configure accessory at here (like setup event handler).
   // Update current value.
-  configureAccessory(accessory) {
+  configureAccessory = (accessory) => {
     if(!this.config || !this.auth) {
       return false;
     }
@@ -135,7 +127,7 @@ class Platform {
   }
 
   // Sample function to show how developer can add accessory dynamically from outside event
-  addAccessory(client) {
+  addAccessory = (client) => {
     if(!this.config || !this.auth) {
       return false;
     }
@@ -156,7 +148,7 @@ class Platform {
     this.api.registerPlatformAccessories("homebridge-unifi-block-clients", "unifiBlockClients", [newAccessory]);
   }
 
-  updateAccessoriesReachability() {
+  updateAccessoriesReachability = () => {
     if(!this.config || !this.auth) {
       return false;
     }
@@ -168,7 +160,7 @@ class Platform {
     }
   }
   
-  removeAccessory(accessory) {
+  removeAccessory = (accessory) => {
     if(!this.config || !this.auth) {
       return false;
     }
