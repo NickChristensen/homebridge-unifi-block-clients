@@ -1,5 +1,7 @@
 # Unifi Block Clients
 
+***Note*: This plugin is no longer maintained. If you're interested in maintaining it, please open an issue.**
+
 With this plugin, you can create switches that block/unblock network clients on your Unifi network. When a switch is toggled on, the client will be blocked from network access. When the switch is toggled off, the client will be allowed network access again.
 
 Use it to automate network access for certain devices/users based on who's home, time of day, etc. Create scenes to group multiple devices together.
